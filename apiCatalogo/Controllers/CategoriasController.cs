@@ -47,6 +47,8 @@ namespace apiCatalogo.Controllers
             
         }
 
+       
+
         [HttpGet("produtos")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
@@ -70,7 +72,7 @@ namespace apiCatalogo.Controllers
 
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int:min(1)}")]
         public ActionResult Put([FromBody] Categoria categoria, int id)
         {
             if (id != categoria.Id)
