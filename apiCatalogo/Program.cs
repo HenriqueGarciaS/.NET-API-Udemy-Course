@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using apiCatalogo.context;
 using apiCatalogo.Extensions;
+using apiCatalogo.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,9 @@ builder.Services.AddSwaggerGen();
 string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection,
     ServerVersion.AutoDetect(mySqlConnection)));
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
