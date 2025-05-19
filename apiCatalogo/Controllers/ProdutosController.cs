@@ -12,16 +12,18 @@ namespace apiCatalogo.Controllers
     public class ProdutosController : ControllerBase
     {
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IRepository<Produto> _repository;
 
-        public ProdutosController(IProdutoRepository produtoRepository)
+        public ProdutosController(IProdutoRepository produtoRepository, IRepository<Produto> repository)
         {
             _produtoRepository = produtoRepository;
+            _repository = repository;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> GetAsync()
+        public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _produtoRepository.GetProdutos();
+            var produtos = _repository.GetAll();
 
             if (produtos == null)
                 return NotFound("Produtos não encontrados");
@@ -31,10 +33,21 @@ namespace apiCatalogo.Controllers
             
         }
 
+        [HttpGet("Produtos/{id}")]
+        public ActionResult<IEnumerable<Produto>> GetProdutosCategoria(int id)
+        {
+            var produtos =  _produtoRepository.GetProdutosPorCategoria(id);
+            if (produtos == null)
+                return NotFound();
+            
+            return Ok(produtos);
+
+        }
+
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produto = _produtoRepository.GetProdutoById(id);
+            var produto = _repository.GetById(id);
             
             if (produto == null) return NotFound("Produto não encontrado");
 
@@ -46,7 +59,7 @@ namespace apiCatalogo.Controllers
         {
             if (produto == null) return BadRequest();
 
-            var produtoCriado = _produtoRepository.CreateProduto(produto);
+            var produtoCriado = _repository.Create(produto);
 
             return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriado.Id }, produtoCriado);
         }
@@ -56,7 +69,7 @@ namespace apiCatalogo.Controllers
         {
             if (id != produto.Id)
                 return BadRequest();
-            _produtoRepository.UpdateProduto(produto);
+            _repository.Update(produto);
 
             return Ok(produto);
         }
@@ -64,7 +77,7 @@ namespace apiCatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var produto = _produtoRepository.DeleteProduto(id);
+            var produto = _repository.Delete(id);
 
             return Ok(produto);
         }

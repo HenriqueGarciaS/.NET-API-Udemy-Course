@@ -11,9 +11,9 @@ namespace apiCatalogo.Controllers
     [Route("[controller]")]
     public class CategoriasController : ControllerBase
     {
-        private readonly ICategoriaRepository _repository;
+        private readonly IRepository<Categoria> _repository;
 
-        public CategoriasController(ICategoriaRepository repository) 
+        public CategoriasController(IRepository<Categoria> repository) 
         {
             _repository = repository; 
         }
@@ -21,7 +21,7 @@ namespace apiCatalogo.Controllers
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categoria = _repository.GetCategoriaById(id);
+            var categoria = _repository.GetById(id);
 
             if(categoria == null) 
                 return NotFound("Categoria não encontrada");
@@ -32,27 +32,18 @@ namespace apiCatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-                var categorias = _repository.GetCategorias();
+            var categorias = _repository.GetAll();
                 
                 return Ok(categorias);
         }
-
-       
-
-        [HttpGet("produtos")]
-        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
-        {
-            var categorias = _repository.GetCategoriasProdutos();
-
-            return Ok(categorias);
-        }
+        
 
         [HttpPost]
         public ActionResult Post([FromBody] Categoria categoria)
         {
             if (categoria == null) return BadRequest();
 
-            var categoriaCriada = _repository.CreateCategoria(categoria);
+            var categoriaCriada = _repository.Create(categoria);
 
             return new CreatedAtRouteResult("ObterCategoria", new {id = categoriaCriada.Id }, categoriaCriada);
 
@@ -63,7 +54,7 @@ namespace apiCatalogo.Controllers
         {
             if (id != categoria.Id)
                 return BadRequest();
-            _repository.UpdateCategoria(categoria);
+            _repository.Update(categoria);
 
             return Ok(categoria);
         }
@@ -71,7 +62,7 @@ namespace apiCatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var categoria = _repository.DeleteCategoria(id);
+            var categoria = _repository.Delete(id);
 
             return Ok(categoria);
         }
