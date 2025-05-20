@@ -1,4 +1,5 @@
 ﻿using apiCatalogo.context;
+using Microsoft.EntityFrameworkCore;
 
 namespace apiCatalogo.Repositories;
 
@@ -13,7 +14,7 @@ public class Repository<T> : IRepository<T> where T : class
 
     public IEnumerable<T> GetAll()
     {
-        return _context.Set<T>().ToList();
+        return _context.Set<T>().AsNoTracking().ToList();
     }
 
     public T? GetById(int id)
@@ -31,7 +32,7 @@ public class Repository<T> : IRepository<T> where T : class
     public T Update(T model)
     {
         _context.Set<T>().Update(model);
-        _context.SaveChanges();
+        //_context.SaveChanges();
         return model;
     }
 
@@ -39,7 +40,7 @@ public class Repository<T> : IRepository<T> where T : class
     {
         var model = _context.Set<T>().Find(id);
         _context.Set<T>().Remove(model);
-        _context.SaveChanges();
+        //_context.SaveChanges();
         return model;
     }
 }

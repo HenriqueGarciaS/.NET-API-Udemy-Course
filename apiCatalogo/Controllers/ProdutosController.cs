@@ -11,19 +11,17 @@ namespace apiCatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly IProdutoRepository _produtoRepository;
-        private readonly IRepository<Produto> _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProdutosController(IProdutoRepository produtoRepository, IRepository<Produto> repository)
+        public ProdutosController(IUnitOfWork unitOfWork)
         {
-            _produtoRepository = produtoRepository;
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _repository.GetAll();
+            var produtos = _unitOfWork.ProdutoRepository.GetAll();
 
             if (produtos == null)
                 return NotFound("Produtos não encontrados");
@@ -36,7 +34,7 @@ namespace apiCatalogo.Controllers
         [HttpGet("Produtos/{id}")]
         public ActionResult<IEnumerable<Produto>> GetProdutosCategoria(int id)
         {
-            var produtos =  _produtoRepository.GetProdutosPorCategoria(id);
+            var produtos =  _unitOfWork.ProdutoRepository.GetProdutosPorCategoria(id);
             if (produtos == null)
                 return NotFound();
             
@@ -47,7 +45,7 @@ namespace apiCatalogo.Controllers
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produto = _repository.GetById(id);
+            var produto = _unitOfWork.ProdutoRepository.GetById(id);
             
             if (produto == null) return NotFound("Produto não encontrado");
 
@@ -59,7 +57,8 @@ namespace apiCatalogo.Controllers
         {
             if (produto == null) return BadRequest();
 
-            var produtoCriado = _repository.Create(produto);
+            var produtoCriado = _unitOfWork.ProdutoRepository.Create(produto);
+            _unitOfWork.Commit();
 
             return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriado.Id }, produtoCriado);
         }
@@ -69,16 +68,16 @@ namespace apiCatalogo.Controllers
         {
             if (id != produto.Id)
                 return BadRequest();
-            _repository.Update(produto);
-
+            _unitOfWork.ProdutoRepository.Update(produto);
+            _unitOfWork.Commit();
             return Ok(produto);
         }
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var produto = _repository.Delete(id);
-
+            var produto = _unitOfWork.ProdutoRepository.Delete(id);
+            _unitOfWork.Commit();
             return Ok(produto);
         }
     }
